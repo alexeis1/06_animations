@@ -66,27 +66,27 @@ class AppActivity : AppCompatActivity(R.layout.activity_app) {
 //        ObjectAnimator.ofPropertyValuesHolder(view, rotation, alpha)
 //            .apply {
 //                startDelay = 500
-//                duration = 500
+//                duration = 1500
 //                interpolator = LinearInterpolator()
 //            }.start()
 
 //        view.animate()
-//            .rotation(360F)
-//            .scaleX(1.2F)
-//            .scaleY(1.2F)
+//            .rotation(-360F)
+//            .scaleX(0.2F)
+//            .scaleY(0.2F)
 //            .setInterpolator(LinearInterpolator())
 //            .setStartDelay(500)
-//            .setDuration(500)
+//            .setDuration(1500)
 //            .start()
 
 //        val alpha = ObjectAnimator.ofFloat(view, View.ALPHA, 0.25F, 1F).apply {
-//            duration = 300
+//            duration = 1300
 //            interpolator = LinearInterpolator()
 //        }
 //        val scaleX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0F, 1F)
 //        val scaleY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0F, 1F)
 //        val scale = ObjectAnimator.ofPropertyValuesHolder(view, scaleX, scaleY).apply {
-//            duration = 300
+//            duration = 1300
 //            interpolator = BounceInterpolator()
 //        }
 //        AnimatorSet().apply {

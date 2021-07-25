@@ -1,5 +1,6 @@
 package ru.netology.nmedia.ui
 
+import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
@@ -15,6 +16,11 @@ import ru.netology.nmedia.util.AndroidUtils
 import kotlin.math.min
 import kotlin.random.Random
 
+enum class AnimType(val value : Int){
+    Parallel(0),
+    Sequential(1)
+}
+
 class StatsView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -29,11 +35,14 @@ class StatsView @JvmOverloads constructor(
     private var fontSize = AndroidUtils.dp(context, 40F).toFloat()
     private var colors = emptyList<Int>()
 
-    private var progress = 0F
-    private var valueAnimator: ValueAnimator? = null
+    private var progress = mutableListOf<Float>()
+    private var valuesAnimator: AnimatorSet? = null
+    private var animType : AnimType = AnimType.Sequential
 
     init {
         context.withStyledAttributes(attrs, R.styleable.StatsView) {
+            animType = AnimType.values()[
+                    getInteger(R.styleable.StatsView_animType, AnimType.Sequential.ordinal)]
             lineWidth = getDimension(R.styleable.StatsView_lineWidth, lineWidth)
             fontSize = getDimension(R.styleable.StatsView_fontSize, fontSize)
             colors = listOf(
@@ -117,7 +126,7 @@ class StatsView @JvmOverloads constructor(
         for ((index, datum) in data.withIndex()) {
             val angle = 360F * datum
             paint.color = colors.getOrNull(index) ?: randomColor()
-            canvas.drawArc(oval, startFrom, angle * progress, false, paint)
+            canvas.drawArc(oval, startFrom, angle * progress[index], false, paint)
             startFrom += angle
         }
 
@@ -130,22 +139,31 @@ class StatsView @JvmOverloads constructor(
     }
 
     private fun update() {
-        valueAnimator?.let {
-            it.removeAllListeners()
+        valuesAnimator?.let {
+            it.childAnimations.forEach { ani -> ani.removeAllListeners() }
+            it.end()
             it.cancel()
         }
-        progress = 0F
-
-        valueAnimator = ValueAnimator.ofFloat(0F, 1F).apply {
-            addUpdateListener { anim ->
-                progress = anim.animatedValue as Float
-                invalidate()
+        progress = data.map{ 0F }.toMutableList()
+        val animatorList = progress.mapIndexed {index,_->
+            ValueAnimator.ofFloat(0F, 1F).apply {
+                addUpdateListener { anim ->
+                    progress[index] = anim.animatedValue as Float
+                    invalidate()
+                }
+                duration = 1500
+                interpolator = LinearInterpolator()
             }
-            duration = 500
-            interpolator = LinearInterpolator()
-        }.also {
-            it.start()
         }
+
+        AnimatorSet().apply {
+            startDelay = 500
+            when(animType){
+                AnimType.Parallel  -> playTogether(animatorList)
+                AnimType.Sequential-> playSequentially(animatorList)
+            }
+            valuesAnimator = this
+        }.start()
     }
 
     private fun randomColor() = Random.nextInt(0xFF000000.toInt(), 0xFFFFFFFF.toInt())

@@ -23,6 +23,7 @@
         app:color2="@color/colorAccent"
         app:color3="#FFDE03"
         app:color4="#FF0266"
+        app:animType="parallel"
         />
 </FrameLayout>
 
